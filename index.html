@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Five Nights at Jairo's</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="title-screen">
+        <h1>FIVE NIGHTS AT JAIRO'S</h1>
+        <img src="images/title_screen.png" alt="3 Jairos" class="title-img"> 
+        <button onclick="startGame()">NEW GAME</button>
+    </div>
+
+    <div id="intro-screen" class="hidden">
+        <h2>NIGHT 1</h2>
+        <p>Jairo is active. Use the AUDIO LURE to keep him away.</p>
+        <p>If cameras break, look LEFT to the Control Panel to reboot.</p>
+        <button onclick="startNight()">BEGIN SHIFT</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        
+        <div id="office-container">
+            <div id="office-world">
+                <div id="panel-zone">
+                    <div class="panel-box">
+                        <h3>SYSTEM CONTROL</h3>
+                        <div id="sys-status">SYSTEM: ONLINE</div>
+                        <button onclick="rebootSystem()">REBOOT CAMERAS</button>
+                    </div>
+                </div>
+
+                <div id="office-view">
+                    <div class="placeholder-bg">OFFICE VIEW (Look Left/Right)</div>
+                </div>
+
+                <div id="camera-trigger">
+                    <div class="cam-flip-btn" onclick="toggleMonitor()">OPEN CAMERAS ></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="monitor" class="hidden">
+            <div id="cam-screen">
+                <h3 id="cam-name">CAM 11</h3>
+                <div id="cam-view">
+                    <img id="cam-feed" src="" alt="Camera Feed">
+                    <img id="jairo-sticker" src="images/jairo.png" class="hidden">
+                    <img id="static-gif" src="images/static.gif" class="static-overlay hidden">
+                    <div id="error-msg" class="hidden">NO SIGNAL - REBOOT REQUIRED</div>
+                </div>
+            </div>
+
+            <div id="map-ui">
+                <button onclick="switchCam(11)">CAM 11 (Stage)</button>
+                <button onclick="switchCam(9)">CAM 09 (Hall A)</button>
+                <button onclick="switchCam(8)">CAM 08 (Hall B)</button>
+                <button onclick="switchCam(5)">CAM 05 (Kitchen)</button>
+                <br><br>
+                <button id="audio-btn" onclick="playAudio()">PLAY AUDIO LURE</button>
+                <div id="audio-status">Audio Ready</div>
+            </div>
+
+            <button id="close-monitor" onclick="toggleMonitor()">v PUT DOWN MONITOR v</button>
+        </div>
+
+        <div id="clock">12:00 AM</div>
+
+    </div>
+
+    <div id="jumpscare-screen" class="hidden">
+        <img id="scare-gif" src="images/jairo_scare.gif">
+    </div>
+
+    <div id="win-screen" class="hidden">
+        <h1>6:00 AM</h1>
+        <p>You survived Night 1.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
