@@ -1,0 +1,156 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden; /* Stop scrolling bars */
+}
+
+.hidden { display: none !important; }
+
+/* TITLE SCREEN */
+#title-screen, #intro-screen, #win-screen {
+    text-align: center;
+    padding-top: 100px;
+}
+
+button {
+    background: #333;
+    color: lime;
+    border: 2px solid lime;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover { background: #111; }
+
+/* THE OFFICE SWIVEL MECHANIC */
+#office-container {
+    width: 100vw;
+    height: 100vh;
+    overflow-x: scroll; /* Allows scrolling */
+    overflow-y: hidden;
+}
+
+/* This is the wide world containing Panel(Left) + Office(Mid) + Cams(Right) */
+#office-world {
+    width: 150vw; /* 150% screen width so you can look around */
+    height: 100vh;
+    display: flex;
+    background-color: #222;
+}
+
+#panel-zone {
+    width: 25vw;
+    background: #111;
+    border-right: 5px solid #444;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#office-view {
+    width: 100vw;
+    background: #000;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Placeholder for your office background image */
+.placeholder-bg {
+    width: 80%;
+    height: 80%;
+    border: 2px dashed gray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: gray;
+}
+
+#camera-trigger {
+    width: 25vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: #111;
+    border-left: 5px solid #444;
+}
+
+/* MONITOR OVERLAY */
+#monitor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 50, 0, 0.9);
+    z-index: 10; /* sits on top of office */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#cam-view {
+    width: 600px;
+    height: 400px;
+    background: black;
+    border: 4px solid grey;
+    position: relative;
+    margin-top: 20px;
+}
+
+#cam-feed { width: 100%; height: 100%; object-fit: cover; }
+
+#jairo-sticker {
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    width: 150px;
+    /* This makes him sit on top of the room */
+    z-index: 5; 
+}
+
+.static-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.5;
+    z-index: 6;
+}
+
+#error-msg {
+    position: absolute;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+    color: red;
+    font-size: 30px;
+    background: black;
+    z-index: 7;
+}
+
+#clock {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 32px;
+    z-index: 5;
+}
+
+/* Jumpscare */
+#jumpscare-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: black;
+    z-index: 99;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
