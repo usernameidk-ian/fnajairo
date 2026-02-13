@@ -1,156 +1,179 @@
 body {
     margin: 0;
-    padding: 0;
-    background-color: black;
+    overflow: hidden;
+    background: black;
     color: white;
-    font-family: 'Courier New', Courier, monospace;
-    overflow: hidden; /* Stop scrolling bars */
+    font-family: 'Courier New', monospace;
+    user-select: none;
 }
 
-.hidden { display: none !important; }
-
-/* TITLE SCREEN */
-#title-screen, #intro-screen, #win-screen {
-    text-align: center;
-    padding-top: 100px;
+/* === TITLE SCREEN === */
+#title-screen {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    padding: 0 50px;
+    position: relative;
 }
-
-button {
-    background: #333;
-    color: lime;
-    border: 2px solid lime;
-    padding: 10px 20px;
-    font-size: 18px;
+.static-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: url('images/static.gif');
+    opacity: 0.1;
+    z-index: -1;
+}
+.title-text button {
+    margin-top: 20px;
+    padding: 15px 30px;
+    background: #444;
+    color: white;
+    font-size: 20px;
+    border: 2px solid white;
     cursor: pointer;
-    margin: 5px;
+}
+.title-text button:hover {
+    background: #00ff00;
+    color: black;
 }
 
-button:hover { background: #111; }
-
-/* THE OFFICE SWIVEL MECHANIC */
+/* === THE OFFICE === */
 #office-container {
     width: 100vw;
     height: 100vh;
-    overflow-x: scroll; /* Allows scrolling */
-    overflow-y: hidden;
-}
-
-/* This is the wide world containing Panel(Left) + Office(Mid) + Cams(Right) */
-#office-world {
-    width: 150vw; /* 150% screen width so you can look around */
-    height: 100vh;
-    display: flex;
-    background-color: #222;
-}
-
-#panel-zone {
-    width: 25vw;
-    background: #111;
-    border-right: 5px solid #444;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#office-view {
-    width: 100vw;
-    background: #000;
+    overflow: hidden;
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: black;
+}
+#office-bg {
+    width: 2500px; /* Make this wider than screen */
+    height: 100vh;
+    background: url('images/office_wide.jpg') no-repeat;
+    background-size: cover;
+    transition: transform 0.1s ease-out; /* Smooth slide */
 }
 
-/* Placeholder for your office background image */
-.placeholder-bg {
-    width: 80%;
-    height: 80%;
-    border: 2px dashed gray;
+/* === HOVER ZONES === */
+.hover-zone {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15%;
+    height: 100%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    color: gray;
-}
-
-#camera-trigger {
-    width: 25vw;
-    display: flex;
     justify-content: center;
-    align-items: center;
+    background: rgba(0,0,0,0.5);
+    opacity: 0; /* Only shows when mouse is near */
+    transition: opacity 0.3s;
+    font-weight: bold;
     cursor: pointer;
-    background: #111;
-    border-left: 5px solid #444;
+    z-index: 10;
 }
+.hover-zone:hover {
+    opacity: 1;
+}
+#hover-left { left: 0; }
+#hover-right { right: 0; }
 
-/* MONITOR OVERLAY */
+/* === CAMERA MONITOR === */
 #monitor {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 50, 0, 0.9);
-    z-index: 10; /* sits on top of office */
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: black;
+    z-index: 20;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
-#cam-view {
-    width: 600px;
-    height: 400px;
-    background: black;
-    border: 4px solid grey;
+#camera-frame {
+    width: 80%;
+    height: 70%;
+    border: 5px solid #333;
     position: relative;
-    margin-top: 20px;
+    overflow: hidden;
 }
-
-#cam-feed { width: 100%; height: 100%; object-fit: cover; }
-
-#jairo-sticker {
-    position: absolute;
-    top: 20%;
-    left: 30%;
-    width: 150px;
-    /* This makes him sit on top of the room */
-    z-index: 5; 
-}
-
-.static-overlay {
-    position: absolute;
-    top: 0; left: 0;
+#cam-view {
     width: 100%; height: 100%;
-    opacity: 0.5;
-    z-index: 6;
+    object-fit: cover;
+}
+#cam-static {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0.1; /* Usually hidden, flashes on switch */
+    pointer-events: none;
 }
 
-#error-msg {
-    position: absolute;
-    top: 40%;
-    width: 100%;
-    text-align: center;
+/* === MAP BUTTONS === */
+#map-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    gap: 10px;
+    margin-top: 10px;
+}
+.cam-btn {
+    padding: 10px;
+    background: #222;
+    border: 1px solid #555;
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+}
+.cam-btn:hover {
+    background: #444;
+}
+.cam-btn.active {
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+}
+.map-you {
     color: red;
-    font-size: 30px;
-    background: black;
-    z-index: 7;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed red;
 }
 
-#clock {
+/* === CONTROL PANEL === */
+#control-panel {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 32px;
-    z-index: 5;
-}
-
-/* Jumpscare */
-#jumpscare-screen {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: black;
-    z-index: 99;
+    color: #00ff00;
+    z-index: 20;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.panel-box {
+    border: 2px solid #00ff00;
+    padding: 50px;
+    text-align: center;
+}
+#reboot-bar {
+    width: 100%;
+    height: 20px;
+    border: 1px solid #00ff00;
+    margin-top: 10px;
+}
+#reboot-fill {
+    width: 0%;
+    height: 100%;
+    background: #00ff00;
+    transition: width 0.1s;
+}
+
+/* === JUMPSCARE === */
+#jumpscare {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 999;
+    background: black;
+}
+#scare-gif {
+    width: 100%; height: 100%;
+    object-fit: cover;
 }
