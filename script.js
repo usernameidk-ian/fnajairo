@@ -1,96 +1,79 @@
-// === CONFIG ===
-const TOTAL_CAMS = 11;
+// === GAME VARIABLES ===
 let currentCam = 11;
-let jairoLocation = 11; 
+let jairoLocation = 11; // Jairo starts at Cam 11
 let camerasDisabled = false;
 let audioCooldown = false;
+let nightTimer = 0; // Counts up to 6 AM (e.g., 360 seconds)
 let gameActive = false;
-let rebooting = false;
 
-// === ASSET PRELOADER (Fixes lag) ===
-// List ALL your image names here exactly
-const imageUrls = [
-    'images/office_wide.jpg', 'images/static.gif', 
-    'images/jairo_scare.gif', 'images/title_character.png'
-];
-// Add camera images 1-11
-for(let i=1; i<=11; i++) {
-    let num = i < 10 ? '0'+i : i;
-    imageUrls.push(`images/cam${num}background.png`);
-    imageUrls.push(`images/cam${num}jairo.png`);
-}
-
-let imagesLoaded = 0;
-// Load them immediately
-imageUrls.forEach(src => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-        imagesLoaded++;
-        document.getElementById('load-text').innerText = `Loading... ${Math.floor((imagesLoaded/imageUrls.length)*100)}%`;
-        if(imagesLoaded >= imageUrls.length) {
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('title-screen').style.display = 'flex';
-        }
-    };
-    img.onerror = () => { console.log("Missing file: " + src); } // Helps find errors
-});
-
-// === GAME START ===
+// === START GAME ===
 function startGame() {
     document.getElementById('title-screen').style.display = 'none';
     document.getElementById('night-intro').style.display = 'block';
     
+    // Play intro sound if you have one
     setTimeout(() => {
         document.getElementById('night-intro').style.display = 'none';
         document.getElementById('game-screen').style.display = 'block';
         gameActive = true;
-        startAI(); 
-    }, 4000); 
+        startAI(); // Start Jairo moving
+    }, 3000); // 3 seconds delay
 }
 
-// === OFFICE LOOK ===
+// === OFFICE MOVEMENT ===
+// This makes the room slide left/right based on mouse position
 document.addEventListener('mousemove', (e) => {
     if (!gameActive) return;
     const width = window.innerWidth;
-    const movePercent = (e.clientX / width) * 25; // 25% max shift
+    const x = e.clientX;
+    const movePercent = (x / width) * 20; // Adjust '20' for more/less movement
     document.getElementById('office-bg').style.transform = `translateX(-${movePercent}%)`;
+    
+    // Show UI triggers
+    if (x < width * 0.1) {
+        document.getElementById('hover-left').style.opacity = 1;
+        document.getElementById('hover-left').onclick = openControlPanel;
+    } else if (x > width * 0.9) {
+        document.getElementById('hover-right').style.opacity = 1;
+        document.getElementById('hover-right').onclick = openMonitor;
+    } else {
+        document.getElementById('hover-left').style.opacity = 0;
+        document.getElementById('hover-right').style.opacity = 0;
+    }
 });
 
 // === CAMERA SYSTEM ===
 function openMonitor() {
-    if(rebooting) return; // Can't open if rebooting
-    document.getElementById('monitor').style.display = 'block'; // Block, not flex
+    document.getElementById('monitor').style.display = 'flex';
     document.getElementById('snd-blip').play();
     updateCamView();
 }
 
 function closeUI() {
     document.getElementById('monitor').style.display = 'none';
-    document.getElementById('reboot-screen').style.display = 'none';
+    document.getElementById('control-panel').style.display = 'none';
 }
 
 function switchCam(camNum) {
-    if (camerasDisabled) return; 
+    if (camerasDisabled) return; // Cannot switch if broken
+
     currentCam = camNum;
     
-    // Blip sound
-    const blip = document.getElementById('snd-blip');
-    blip.currentTime = 0; blip.play();
+    // 1. Play Blip Sound
+    document.getElementById('snd-blip').currentTime = 0;
+    document.getElementById('snd-blip').play();
 
-    // Visuals
-    document.getElementById('cam-static').style.opacity = 0.8;
-    setTimeout(() => { document.getElementById('cam-static').style.opacity = 0.15; }, 150);
-    
-    // Highlight button
-    document.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
-    // Find button with correct onclick
-    const buttons = document.querySelectorAll('.map-btn');
-    buttons.forEach(btn => {
-        if(btn.getAttribute('onclick').includes(camNum)) btn.classList.add('active');
-    });
+    // 2. Flash Static Effect
+    const staticOverlay = document.getElementById('cam-static');
+    staticOverlay.style.opacity = 1;
+    setTimeout(() => { staticOverlay.style.opacity = 0.1; }, 200);
 
+    // 3. Update Visuals
     updateCamView();
+
+    // 4. Update Green Glow on Buttons
+    document.querySelectorAll('.cam-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('cam' + (camNum < 10 ? '0' + camNum : camNum)).classList.add('active');
 }
 
 function updateCamView() {
@@ -98,109 +81,124 @@ function updateCamView() {
     const camName = document.getElementById('cam-name');
     
     if (camerasDisabled) {
-        camImg.src = "images/static.gif"; 
-        camName.innerText = "ERR";
+        camImg.src = "images/static.gif"; // Show static if broken
+        camName.innerText = "ERR - NO SIGNAL";
         return;
     }
 
-    // Naming logic
-    let num = currentCam < 10 ? '0' + currentCam : currentCam;
-    
-    // Check Jairo
+    // Logic: Is Jairo here?
+    let imageSource = "";
     if (jairoLocation === currentCam) {
-        camImg.src = `images/cam${num}jairo.png`;
+        imageSource = `images/cam${currentCam < 10 ? '0' + currentCam : currentCam}jairo.png`;
     } else {
-        camImg.src = `images/cam${num}background.png`;
+        imageSource = `images/cam${currentCam < 10 ? '0' + currentCam : currentCam}background.png`;
     }
     
+    camImg.src = imageSource;
     camName.innerText = "CAM " + currentCam;
 }
 
-// === REBOOT SYSTEM (Old School) ===
-function openControlPanel() {
-    document.getElementById('reboot-screen').style.display = 'flex';
-}
-
-function startRebootProcess() {
-    const dots = document.getElementById('reboot-dots');
-    const trigger = document.getElementById('reboot-trigger');
-    const errText = document.getElementById('reboot-err');
-    
-    if(!camerasDisabled) {
-        dots.innerText = "> SYSTEMS NORMAL. NO REBOOT NEEDED.";
-        return;
-    }
-
-    rebooting = true;
-    trigger.style.display = 'none'; // Hide button
-    errText.style.display = 'block'; // Show ERR
-    let count = 0;
-
-    const loop = setInterval(() => {
-        count++;
-        let dotString = "";
-        for(let i=0; i<(count % 4); i++) dotString += ".";
-        
-        dots.innerText = "> REBOOTING CAMERA SYSTEM" + dotString;
-        document.getElementById('snd-beep').play(); // Beep sound
-
-        if(count > 15) { // 15 ticks (about 5 seconds)
-            clearInterval(loop);
-            camerasDisabled = false;
-            rebooting = false;
-            // Hard Cut - No "Success" message
-            closeUI();
-            trigger.style.display = 'block';
-            errText.style.display = 'none';
-            dots.innerText = "";
-            document.getElementById('cam-static').style.opacity = 0.15;
-            document.getElementById('snd-static').pause();
-        }
-    }, 400);
-}
-
-// === AI & AUDIO (Same as before) ===
+// === AUDIO LURE SYSTEM ===
 function playAudio() {
     if (audioCooldown || camerasDisabled) return;
+    
     document.getElementById('snd-lure').play();
     audioCooldown = true;
-    document.getElementById('audio-msg').innerText = "Running...";
+    document.getElementById('audio-msg').innerText = "Playing...";
+    
+    // Logic: 50% chance to lure Jairo back to this camera
     setTimeout(() => {
-        if (Math.random() > 0.5) jairoLocation = currentCam;
+        if (Math.random() > 0.5) {
+            jairoLocation = currentCam; // It worked! He moved here.
+            console.log("Jairo lured to Cam " + currentCam);
+        } else {
+            console.log("Lure failed.");
+        }
+        
         audioCooldown = false;
         document.getElementById('audio-msg').innerText = "Ready";
-        updateCamView();
-    }, 4000);
+        updateCamView(); // Update screen in case he appeared
+    }, 3000); // 3 second cooldown
 }
 
+// === JAIRO AI (Simple Night 1 Logic) ===
 function startAI() {
     setInterval(() => {
-        if (!gameActive || rebooting) return;
-        if (Math.random() > 0.7) moveJairo();
-    }, 5000);
+        if (!gameActive) return;
+
+        // Night 1: Move every 8-12 seconds (Slow)
+        if (Math.random() > 0.7) { 
+            moveJairo();
+        }
+    }, 5000); // Check for movement every 5 seconds
 }
 
 function moveJairo() {
+    // If cameras are broken, he moves faster!
+    
+    // Logic: Move closer to 0 (The Office)
     if (jairoLocation > 1) {
-        jairoLocation--;
-        if (Math.random() > 0.8) breakCameras();
+        jairoLocation--; // Moves from 11 -> 10 -> 9...
+        console.log("Jairo moved to Cam " + jairoLocation);
+        
+        // Random chance to break cameras when moving
+        if (Math.random() > 0.8) {
+            breakCameras();
+        }
     } else {
+        // Triggers Jumpscare if he reaches 0
         triggerJumpscare();
     }
-    if (document.getElementById('monitor').style.display === 'block') updateCamView();
+    
+    // Update view if you are watching him
+    if (document.getElementById('monitor').style.display === 'flex') {
+        updateCamView();
+    }
 }
 
 function breakCameras() {
     camerasDisabled = true;
-    document.getElementById('cam-static').style.opacity = 1; 
+    document.getElementById('cam-static').style.opacity = 1; // Full static
     document.getElementById('snd-static').play();
+}
+
+// === CONTROL PANEL (Fixing) ===
+function openControlPanel() {
+    document.getElementById('control-panel').style.display = 'flex';
+}
+
+function rebootCameras() {
+    if (!camerasDisabled) return; // Only work if broken
+    
+    let progress = 0;
+    const bar = document.getElementById('reboot-fill');
+    
+    const interval = setInterval(() => {
+        progress += 10;
+        bar.style.width = progress + "%";
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            camerasDisabled = false;
+            document.getElementById('cam-static').style.opacity = 0.1; // Fix static
+            document.getElementById('snd-static').pause();
+            document.getElementById('sys-status').innerText = "SYSTEM RESTORED";
+            setTimeout(() => { closeUI(); }, 1000);
+        }
+    }, 500); // Takes 5 seconds to fix
 }
 
 function triggerJumpscare() {
     gameActive = false;
     document.getElementById('game-screen').style.display = 'none';
     document.getElementById('jumpscare').style.display = 'block';
-    document.getElementById('scare-gif').src = "images/jairo_scare.gif";
+    
+    const scareImg = document.getElementById('scare-gif');
+    scareImg.src = "images/jairo_scare.gif"; // Your scary GIF
     document.getElementById('snd-scare').play();
-    setTimeout(() => { location.reload(); }, 4000);
+    
+    setTimeout(() => {
+        alert("GAME OVER");
+        location.reload(); // Restarts game
+    }, 4000);
 }
