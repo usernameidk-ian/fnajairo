@@ -8,67 +8,84 @@
 </head>
 <body>
 
-    <div id="title-screen">
-        <div class="static-bg"></div> <div class="title-text">
+    <div id="loading-screen">
+        <h2>LOADING ASSETS...</h2>
+        <div id="load-text">Please Wait</div>
+    </div>
+
+    <div id="title-screen" style="display:none;">
+        <div class="static-bg"></div>
+        <div class="title-content">
             <h1>FIVE NIGHTS<br>AT JAIRO'S</h1>
             <button onclick="startGame()">NEW GAME</button>
         </div>
-        <img src="images/title_character.png" class="title-art"> </div>
+        <img src="images/title_character.png" class="title-art"> 
+    </div>
 
     <div id="night-intro" style="display:none;">
-        <h2>12:00 AM</h2>
+        <h2 id="clock-intro">12:00 AM</h2>
         <h3>NIGHT 1</h3>
     </div>
 
     <div id="game-screen" style="display:none;">
         
-        <div id="office-container">
-            <div id="office-bg"></div> </div>
-
-        <div id="hover-left" class="hover-zone"> < CONTROL PANEL </div>
-        <div id="hover-right" class="hover-zone"> CAMERAS > </div>
-
-        <div id="control-panel" class="ui-overlay" style="display:none;">
-            <div class="panel-box">
-                <h2>SYSTEM REBOOT</h2>
-                <div id="sys-status">STATUS: ONLINE</div>
-                <button id="reboot-btn" onclick="rebootCameras()">REBOOT CAMERA SYSTEM</button>
-                <div id="reboot-bar"><div id="reboot-fill"></div></div>
-                <button class="close-ui" onclick="closeUI()">[ CLOSE ]</button>
-            </div>
+        <div id="hud">
+            <div id="clock">12 AM</div>
+            <div id="night-num">Night 1</div>
         </div>
 
-        <div id="monitor" class="ui-overlay" style="display:none;">
+        <div id="office-container">
+            <div id="office-bg"></div> 
+        </div>
+
+        <div id="hover-left" class="hover-zone"> < SYSTEM </div>
+        <div id="hover-right" class="hover-zone"> CAMERAS > </div>
+
+        <div id="reboot-screen" style="display:none;">
+            <div class="terminal-text">
+                <p>> CAMERA SYSTEM ERROR</p>
+                <p>> INITIATING REBOOT SEQUENCE...</p>
+                <p id="reboot-dots"></p>
+                <p id="reboot-err" style="color:red; display:none;">ERR</p>
+            </div>
+            <button id="reboot-trigger" onclick="startRebootProcess()">>> REBOOT CAMERAS</button>
+            <button class="close-ui" onclick="closeUI()">[ EXIT ]</button>
+        </div>
+
+        <div id="monitor" style="display:none;">
             
-            <div id="camera-frame">
-                <img id="cam-view" src="images/cam11background.png">
-                <img id="cam-static" src="images/static.gif"> <div id="cam-name">CAM 11</div>
+            <img id="cam-view" src="">
+            <img id="cam-static" src="images/static.gif"> 
+            
+            <div id="cam-info">
+                <span id="cam-name">CAM 11</span>
+                <span id="rec-dot">●</span> REC
             </div>
 
-            <div id="map-grid">
-                <button class="cam-btn" id="cam11" onclick="switchCam(11)">CAM 11</button>
-                <button class="cam-btn" id="cam10" onclick="switchCam(10)">CAM 10</button>
-                <button class="cam-btn" id="cam09" onclick="switchCam(9)">CAM 09</button>
+            <div id="map-overlay">
+                <svg class="map-lines">
+                    <line x1="80%" y1="10%" x2="50%" y2="10%" /> <line x1="50%" y1="10%" x2="20%" y2="30%" /> <line x1="20%" y1="30%" x2="20%" y2="60%" /> <line x1="20%" y1="60%" x2="80%" y2="80%" /> <line x1="80%" y1="80%" x2="90%" y2="90%" /> </svg>
+
+                <button class="map-btn" style="top:5%; right:5%;" onclick="switchCam(11)">CAM 11</button>
+                <button class="map-btn" style="top:5%; right:40%;" onclick="switchCam(10)">CAM 10</button>
                 
-                <button class="cam-btn" id="cam08" onclick="switchCam(8)">CAM 08</button>
-                <button class="cam-btn" id="cam07" onclick="switchCam(7)">CAM 07</button>
-                <button class="cam-btn" id="cam06" onclick="switchCam(6)">CAM 06</button>
-
-                <button class="cam-btn" id="cam05" onclick="switchCam(5)">CAM 05</button>
-                <div class="map-you">YOU</div>
-                <button class="cam-btn" id="cam04" onclick="switchCam(4)">CAM 04</button>
-
-                <button class="cam-btn" id="cam03" onclick="switchCam(3)">CAM 03</button>
-                <button class="cam-btn" id="cam02" onclick="switchCam(2)">CAM 02</button>
-                <button class="cam-btn" id="cam01" onclick="switchCam(1)">CAM 01</button>
+                <button class="map-btn" style="top:25%; left:10%;" onclick="switchCam(9)">CAM 09</button>
+                <button class="map-btn" style="top:40%; left:10%;" onclick="switchCam(8)">CAM 08</button>
+                
+                <button class="map-btn" style="top:60%; left:20%;" onclick="switchCam(5)">CAM 05</button>
+                <button class="map-btn" style="top:60%; right:20%;" onclick="switchCam(4)">CAM 04</button>
+                
+                <button class="map-btn" style="top:80%; right:15%;" onclick="switchCam(1)">CAM 01</button>
+                
+                <div class="map-you" style="bottom:0; right:0;">YOU</div>
             </div>
 
             <div id="audio-controls">
-                <button id="lure-btn" onclick="playAudio()">PLAY AUDIO</button>
-                <div id="audio-msg">Ready</div>
+                <button onclick="playAudio()">PLAY AUDIO</button>
+                <span id="audio-msg">Ready</span>
             </div>
 
-            <button class="close-ui" onclick="closeUI()">v PUT DOWN MONITOR v</button>
+            <button class="close-monitor-btn" onclick="closeUI()">v</button>
         </div>
 
         <div id="jumpscare" style="display:none;">
@@ -84,7 +101,6 @@
     <audio id="snd-blip" src="sounds/blip.mp3"></audio>
     <audio id="snd-lure" src="sounds/lure.mp3"></audio>
     <audio id="snd-scare" src="sounds/scare.mp3"></audio>
-
-    <script src="script.js"></script>
+    <audio id="snd-beep" src="sounds/blip.mp3"></audio> <script src="script.js"></script>
 </body>
 </html>
