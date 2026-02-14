@@ -3,7 +3,7 @@ body {
     overflow: hidden;
     background: black;
     color: white;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Helvetica', 'Arial', sans-serif; /* Cleaner font for the Epstein look */
     user-select: none;
 }
 
@@ -17,9 +17,9 @@ body {
 
 /* === HUD === */
 #hud {
-    position: fixed; top: 20px; right: 20px;
-    text-align: right; z-index: 100;
-    font-weight: bold; font-size: 24px;
+    position: fixed; top: 20px; left: 20px; /* Moved to top left like screenshot */
+    text-align: left; z-index: 100;
+    font-weight: bold; font-size: 24px; text-shadow: 2px 2px black;
 }
 
 /* === TITLE === */
@@ -31,13 +31,13 @@ body {
     position: absolute; top:0; left:0; width:100%; height:100%;
     background: url('images/static.gif'); opacity: 0.1; pointer-events: none;
 }
-.title-content h1 { font-size: 60px; margin-bottom: 20px; }
+.title-content h1 { font-size: 60px; margin-bottom: 20px; font-weight: 800; }
 .title-content button {
-    background: transparent; border: 2px solid white; color: white;
-    padding: 10px 30px; font-size: 20px; cursor: pointer;
-    font-family: inherit;
+    background: transparent; border: none; color: white;
+    padding: 10px 0; font-size: 24px; cursor: pointer;
+    font-family: inherit; font-weight: bold;
 }
-.title-content button:hover { background: white; color: black; }
+.title-content button:hover { color: #aaa; }
 
 /* === OFFICE === */
 #office-container { width: 100vw; height: 100vh; overflow: hidden; }
@@ -49,14 +49,15 @@ body {
 
 /* === UI TRIGGERS === */
 .hover-zone {
-    position: absolute; top:0; height:100%; width: 150px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: rgba(255,255,255,0.3);
+    position: absolute; top:0; height:100%; width: 250px;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 50px;
+    font-size: 24px; font-weight: bold; color: rgba(255,255,255,0.5);
     cursor: pointer; z-index: 50;
-    background: linear-gradient(to right, rgba(0,0,0,0.8), transparent);
 }
-#hover-right { right: 0; background: linear-gradient(to left, rgba(0,0,0,0.8), transparent); }
-.hover-zone:hover { color: white; opacity: 1; }
+#hover-left { left: 0; }
+#hover-right { right: 0; }
+.hover-zone:hover { color: white; }
 
 /* === FULL SCREEN MONITOR === */
 #monitor {
@@ -64,50 +65,64 @@ body {
     background: black; z-index: 200;
 }
 #cam-view {
-    width: 100vw; height: 100vh; object-fit: fill; /* Stretches to fit */
-    opacity: 0.6; /* Makes it look dim like a camera */
+    width: 100vw; height: 100vh; object-fit: fill; 
+    opacity: 0.8; 
 }
 #cam-static {
     position: absolute; top:0; left:0; width:100%; height:100%;
     opacity: 0.15; pointer-events: none; mix-blend-mode: overlay;
 }
 #cam-info {
-    position: absolute; top: 30px; left: 30px;
-    font-size: 30px; font-weight: bold; text-shadow: 2px 2px black;
+    position: absolute; top: 40px; left: 60px;
+    font-size: 36px; font-weight: bold; text-shadow: 2px 2px black;
 }
-#rec-dot { color: red; animation: blink 1s infinite; }
+.o2-indicator {
+    position: absolute; bottom: 20px; right: 20px;
+    font-size: 18px; color: rgba(255,255,255,0.8);
+}
+
+/* === SIDE BAR === */
+#camera-side-bar {
+    position: absolute; top: 50%; right: 20px; transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 20px; color: white; opacity: 0.8;
+}
+.side-label {
+    writing-mode: vertical-rl; text-orientation: mixed;
+    margin: 10px 0; font-weight: bold; letter-spacing: 5px;
+}
 
 /* === THE NEW MAP === */
 #map-overlay {
-    position: absolute; bottom: 20px; right: 20px;
-    width: 300px; height: 250px;
-    background: rgba(0, 20, 0, 0.5); /* Slight green tint backing */
-    border: 2px solid #333;
-}
-.map-lines {
-    position: absolute; top:0; left:0; width:100%; height:100%;
-    z-index: 0; stroke: rgba(255,255,255,0.3); stroke-width: 2;
+    position: absolute; bottom: 40px; left: 40px;
+    width: 400px; height: 350px;
 }
 .map-btn {
-    position: absolute; width: 50px; height: 35px;
-    background: rgba(0,0,0,0.8); border: 1px solid #555;
-    color: #aaa; font-size: 10px; cursor: pointer; z-index: 2;
-    font-family: inherit;
+    position: absolute; width: 60px; height: 25px;
+    background: transparent; border: 2px solid white;
+    color: white; font-size: 12px; font-weight: bold;
+    cursor: pointer; z-index: 2; font-family: inherit;
 }
-.map-btn:hover { background: #333; color: white; }
-.map-btn.active {
-    background: #004400; border: 1px solid #00ff00;
-    color: #00ff00; box-shadow: 0 0 5px #00ff00;
-}
+.map-btn:hover { background: rgba(255,255,255,0.2); }
 .map-you {
-    position: absolute; font-size: 12px; color: white;
-    background: red; padding: 2px 5px;
+    position: absolute; font-size: 14px; color: white; font-weight: bold;
 }
+
+/* === PLAY SOUND BUTTON === */
+#play-sound-btn {
+    position: absolute; bottom: 60px; right: 60px;
+    background: transparent; border: 2px solid white; color: white;
+    padding: 10px 20px; font-size: 20px; font-weight: bold;
+    cursor: pointer; font-family: inherit;
+}
+#play-sound-btn:hover { background: rgba(255,255,255,0.2); }
+
 .close-monitor-btn {
     position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 200px; background: rgba(255,255,255,0.2); border: none;
-    color: white; cursor: pointer; padding: 10px; font-size: 20px;
+    width: 300px; height: 40px; background: transparent; border: none;
+    color: transparent; cursor: pointer; z-index: 250;
 }
+.close-monitor-btn:hover { background: rgba(255,255,255,0.1); }
 
 /* === TERMINAL REBOOT SCREEN === */
 #reboot-screen {
@@ -119,14 +134,19 @@ body {
 .terminal-text {
     width: 600px; height: 300px;
     color: #00ff00; font-size: 20px; text-align: left;
+    font-family: 'Courier New', Courier, monospace;
 }
 #reboot-trigger {
     background: transparent; border: 2px solid #00ff00;
     color: #00ff00; padding: 15px; cursor: pointer;
-    font-family: inherit; font-size: 18px;
+    font-family: 'Courier New', Courier, monospace; font-size: 18px;
     margin-top: 20px;
 }
 #reboot-trigger:hover { background: #00ff00; color: black; }
 
-/* === ANIMATIONS === */
-@keyframes blink { 50% { opacity: 0; } }
+/* === JUMPSCARE === */
+#jumpscare {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 999; background: black;
+}
+#scare-gif { width: 100%; height: 100%; object-fit: cover; }
