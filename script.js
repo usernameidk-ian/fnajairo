@@ -7,13 +7,14 @@ let audioCooldown = false;
 let gameActive = false;
 let rebooting = false;
 
-// === ASSET PRELOADER (Fixes lag) ===
-// List ALL your image names here exactly
+// === ASSET PRELOADER (Fixes infinite loading) ===
 const imageUrls = [
     'images/office_wide.jpg', 'images/static.gif', 
     'images/jairo_scare.gif', 'images/title_character.png'
 ];
-// Add camera images 1-11
+
+// This loop creates cam01background.png through cam11background.png
+// AND cam01jairo.png through cam11jairo.png automatically.
 for(let i=1; i<=11; i++) {
     let num = i < 10 ? '0'+i : i;
     imageUrls.push(`images/cam${num}background.png`);
@@ -21,19 +22,28 @@ for(let i=1; i<=11; i++) {
 }
 
 let imagesLoaded = 0;
+
+function checkLoadProgress() {
+    imagesLoaded++;
+    let percent = Math.floor((imagesLoaded / imageUrls.length) * 100);
+    document.getElementById('load-text').innerText = `Loading... ${percent}%`;
+    
+    // Unlocks the screen even if some images were missing
+    if(imagesLoaded >= imageUrls.length) {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('title-screen').style.display = 'flex';
+    }
+}
+
 // Load them immediately
 imageUrls.forEach(src => {
     const img = new Image();
     img.src = src;
-    img.onload = () => {
-        imagesLoaded++;
-        document.getElementById('load-text').innerText = `Loading... ${Math.floor((imagesLoaded/imageUrls.length)*100)}%`;
-        if(imagesLoaded >= imageUrls.length) {
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('title-screen').style.display = 'flex';
-        }
+    img.onload = checkLoadProgress; // Counts up if successful
+    img.onerror = () => { 
+        console.warn("⚠️ MISSING IMAGE: " + src); 
+        checkLoadProgress(); // STILL counts up so we don't get stuck!
     };
-    img.onerror = () => { console.log("Missing file: " + src); } // Helps find errors
 });
 
 // === GAME START ===
@@ -53,14 +63,14 @@ function startGame() {
 document.addEventListener('mousemove', (e) => {
     if (!gameActive) return;
     const width = window.innerWidth;
-    const movePercent = (e.clientX / width) * 25; // 25% max shift
+    const movePercent = (e.clientX / width) * 25; 
     document.getElementById('office-bg').style.transform = `translateX(-${movePercent}%)`;
 });
 
 // === CAMERA SYSTEM ===
 function openMonitor() {
-    if(rebooting) return; // Can't open if rebooting
-    document.getElementById('monitor').style.display = 'block'; // Block, not flex
+    if(rebooting) return; 
+    document.getElementById('monitor').style.display = 'block'; 
     document.getElementById('snd-blip').play();
     updateCamView();
 }
@@ -82,13 +92,18 @@ function switchCam(camNum) {
     document.getElementById('cam-static').style.opacity = 0.8;
     setTimeout(() => { document.getElementById('cam-static').style.opacity = 0.15; }, 150);
     
-    // Highlight button
-    document.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
-    // Find button with correct onclick
-    const buttons = document.querySelectorAll('.map-btn');
-    buttons.forEach(btn => {
-        if(btn.getAttribute('onclick').includes(camNum)) btn.classList.add('active');
+    // Reset all map buttons to normal color
+    document.querySelectorAll('.map-btn').forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.color = 'white';
     });
+    
+    // Highlight active button green
+    const activeBtn = document.getElementById('btn' + camNum);
+    if(activeBtn) {
+        activeBtn.style.background = '#55a832'; // Epstein green
+        activeBtn.style.color = 'white';
+    }
 
     updateCamView();
 }
@@ -100,8 +115,11 @@ function updateCamView() {
     if (camerasDisabled) {
         camImg.src = "images/static.gif"; 
         camName.innerText = "ERR";
+        camName.style.color = "red";
         return;
     }
+
+    camName.style.color = "white"; // Reset color
 
     // Naming logic
     let num = currentCam < 10 ? '0' + currentCam : currentCam;
@@ -116,7 +134,7 @@ function updateCamView() {
     camName.innerText = "CAM " + currentCam;
 }
 
-// === REBOOT SYSTEM (Old School) ===
+// === REBOOT SYSTEM ===
 function openControlPanel() {
     document.getElementById('reboot-screen').style.display = 'flex';
 }
@@ -132,8 +150,8 @@ function startRebootProcess() {
     }
 
     rebooting = true;
-    trigger.style.display = 'none'; // Hide button
-    errText.style.display = 'block'; // Show ERR
+    trigger.style.display = 'none'; 
+    errText.style.display = 'block'; 
     let count = 0;
 
     const loop = setInterval(() => {
@@ -142,24 +160,28 @@ function startRebootProcess() {
         for(let i=0; i<(count % 4); i++) dotString += ".";
         
         dots.innerText = "> REBOOTING CAMERA SYSTEM" + dotString;
-        document.getElementById('snd-beep').play(); // Beep sound
+        
+        const beep = document.getElementById('snd-beep');
+        beep.currentTime = 0; beep.play();
 
-        if(count > 15) { // 15 ticks (about 5 seconds)
+        if(count > 12) { // About 5 seconds
             clearInterval(loop);
             camerasDisabled = false;
             rebooting = false;
-            // Hard Cut - No "Success" message
             closeUI();
             trigger.style.display = 'block';
             errText.style.display = 'none';
             dots.innerText = "";
             document.getElementById('cam-static').style.opacity = 0.15;
             document.getElementById('snd-static').pause();
+            
+            // Auto update cam view to clear the ERR text
+            updateCamView();
         }
     }, 400);
 }
 
-// === AI & AUDIO (Same as before) ===
+// === AI & AUDIO ===
 function playAudio() {
     if (audioCooldown || camerasDisabled) return;
     document.getElementById('snd-lure').play();
@@ -168,7 +190,7 @@ function playAudio() {
     setTimeout(() => {
         if (Math.random() > 0.5) jairoLocation = currentCam;
         audioCooldown = false;
-        document.getElementById('audio-msg').innerText = "Ready";
+        document.getElementById('audio-msg').innerText = "";
         updateCamView();
     }, 4000);
 }
@@ -194,6 +216,7 @@ function breakCameras() {
     camerasDisabled = true;
     document.getElementById('cam-static').style.opacity = 1; 
     document.getElementById('snd-static').play();
+    updateCamView(); // Triggers the ERR screen immediately
 }
 
 function triggerJumpscare() {
